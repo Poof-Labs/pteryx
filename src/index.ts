@@ -5,6 +5,8 @@ import {
   Collection,
   ChatInputCommandInteraction,
   Interaction,
+  AutocompleteInteraction,
+  ActivityType,
 } from "discord.js";
 import { logger } from "./lib/logger";
 import { PterodactylClient } from "./lib/pterodactyl";
@@ -44,6 +46,7 @@ const ptero = new PterodactylClient(
 type Command = {
   data: { name: string; toJSON(): object };
   execute: (i: ChatInputCommandInteraction, p: PterodactylClient) => Promise<void>;
+  autocomplete?: (i: AutocompleteInteraction, p: PterodactylClient) => Promise<void>;
 }
 
 const commands = new Collection<string, Command>();
@@ -54,7 +57,24 @@ for (const cmd of [power, status, console_, suspend]) {
 discord.once("clientReady", async (c) => {
   logger.bot(`Logged in as ${c.user.tag}`);
 
-  // Start node status live embed
+  const updatePresence = async () => {
+    const servers = await ptero.getAllServers();
+    logger.bot(`Fetched ${servers.length} servers from Pterodactyl API.`);
+
+    logger.bot("Setting presence...");
+    c.user.setPresence({
+      activities: [{
+        name: `Watching ${servers.length} servers`,
+        type: ActivityType.Custom
+      }],
+      status: "idle",
+    });
+  }
+
+  await updatePresence();
+  setInterval(updatePresence, 60_000);
+
+  // * Start node status live embed
   logger.nodestatus("Starting node status loop...");
   await startNodeStatusLoop(
     discord,
@@ -65,6 +85,18 @@ discord.once("clientReady", async (c) => {
 });
 
 discord.on("interactionCreate", async (interaction: Interaction) => {
+
+  if (interaction.isAutocomplete()) {
+    const command = commands.get(interaction.commandName);
+    if (!command) return;
+    try {
+      await (command as any).autocomplete?.(interaction, ptero);
+    } catch (err) {
+      logger.error(`[Autocomplete:${interaction.commandName}] Error:`, err);
+    }
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   logger.bot(`[Command] Received: /${interaction.commandName}`);

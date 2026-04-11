@@ -46,7 +46,8 @@ export function serverStatusEmbed(
   name: string,
   status: ServerStatus,
   memLimit: number,
-  diskLimit: number
+  diskLimit: number,
+  internalId?: number
 ): EmbedBuilder {
   const colour = 
     COLOURS[status.status as keyof typeof COLOURS] ?? COLOURS.info;
@@ -103,5 +104,5 @@ export function serverStatusEmbed(
       }
     )
     .setTimestamp()
-    .setFooter({ text: `ID: ${status.identifier}` });
+    .setFooter({ text: `ID: ${status.identifier}${internalId ? ` • Internal ID: ${internalId}` : ""}` });
 }

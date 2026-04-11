@@ -58,7 +58,7 @@ export async function startNodeStatusLoop(
 ): Promise<void> {
   const channel = await client.channels.fetch(channelId);
   if (!channel || !(channel instanceof TextChannel)) {
-    console.error("[NodeStatus] Channel not found or not a text channel.");
+    logger.nodestatus("Channel not found or not a text channel.");
     return;
   }
 
@@ -69,7 +69,7 @@ export async function startNodeStatusLoop(
     try {
       liveMessage = await channel.messages.fetch(messageId);
     } catch {
-      console.log("[NodeStatus] No existing message found, will create one.");
+      logger.nodestatus("No existing message found, will create one.");
     }
   }
 
@@ -80,13 +80,13 @@ export async function startNodeStatusLoop(
         ptero.getAllServers(),
       ]);
 
-      // Count servers per node (by allocation matching)
-      const serverCounts: { node: number; count: number }[] = [];
+      // logger.debug("Sample server node field:", JSON.stringify(allServers[0]?.attributes.node));
+      // logger.debug("Node names:", nodes.map(n => n.attributes.name));
 
-      for (const node of nodes) {
-        const count = allServers.filter((s) => s.attributes.allocation === node.attributes.id).length;
-        serverCounts.push({ node: node.attributes.id, count });
-      }
+      const serverCounts = nodes.map((node) => ({
+        node: node.attributes.id,
+        count: allServers.filter((s) => s.attributes.node === node.attributes.id).length,
+      }));
 
       const embed = buildNodeEmbed(nodes, serverCounts);
 

@@ -22,6 +22,7 @@ export interface Server {
     uuid: string;
     identifier: string;
     name: string;
+    node: number;
     description: string | null;
     status: string | null;
     suspended: boolean;
@@ -72,7 +73,7 @@ export class PterodactylClient {
       headers: {
         Authorization: `Bearer ${appKey}`,
         "Content-Type": "application/json",
-        Accept: "application/json",
+        Accept: "application/vnd.pterodactyl.v1+json",
       },
     });
   }
@@ -102,6 +103,12 @@ export class PterodactylClient {
     };
   }
 
+  async getClientServers(): Promise<Server[]> {
+    const res = await this.client.get("/");
+    const raw = res.data?.data ?? res.data;
+    return Array.isArray(raw) ? raw : [];
+  }
+
   async powerAction(
     serverId: string,
     action: "start" | "stop" | "restart" | "kill"
@@ -121,7 +128,6 @@ export class PterodactylClient {
 
   async getNodes(): Promise<Node[]> {
   const res = await this.app.get("/nodes");
-  // Handle both { data: [...] } and bare array responses
   const raw = res.data?.data ?? res.data;
   return Array.isArray(raw) ? raw : [];
 }

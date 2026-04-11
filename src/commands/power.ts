@@ -1,6 +1,7 @@
 import { 
   SlashCommandBuilder,
   ChatInputCommandInteraction,
+  AutocompleteInteraction,
   EmbedBuilder,
 } from "discord.js";
 import { PterodactylClient } from "../lib/pterodactyl";
@@ -14,6 +15,7 @@ export const data = new SlashCommandBuilder()
       .setName("server")
       .setDescription("Server identifier (short ID)")
       .setRequired(true)
+      .setAutocomplete(true)
   )
   .addStringOption((o) =>
     o
@@ -27,6 +29,25 @@ export const data = new SlashCommandBuilder()
         { name: "💀 Kill", value: "kill" }
       )
   );
+
+
+export async function autocomplete(
+  interaction: AutocompleteInteraction,
+  ptero: PterodactylClient
+): Promise<void> {
+  const focused = interaction.options.getFocused().toLowerCase();
+  const servers = await ptero.getAllServers();
+
+  const choices = servers
+    .map((s) => ({
+      name: `${s.attributes.identifier} | ${s.attributes.name}`,
+      value: s.attributes.identifier,
+    }))
+    .filter((c) => c.name.toLowerCase().includes(focused))
+    .slice(0, 25); // * Discord allows max 25 choices
+
+  await interaction.respond(choices);
+}
 
 export async function execute(
   interaction: ChatInputCommandInteraction,
