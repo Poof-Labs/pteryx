@@ -32,7 +32,14 @@ export async function execute(
 
   try {
     const user = await ptero.getUserByEmail(email);
-    logger.debug(`Fetched user for email ${email}:`, user);
+    logger.debug("Fetched user lookup result", user
+      ? {
+          found: true,
+          id: user.attributes.id,
+          username: user.attributes.username,
+          serversCount: user.attributes.relationships?.servers?.data?.length ?? 0,
+        }
+      : { found: false });
 
     if (!user) {
       await interaction.editReply({
