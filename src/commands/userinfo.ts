@@ -31,7 +31,7 @@ export async function execute(
   const email = interaction.options.getString("email", true);
 
   try {
-    const user = await ptero.getUserByEmail(email);
+    const user = await ptero.getServersByUserEmail(email);
     logger.debug("Fetched user lookup result", user
       ? {
           found: true,
