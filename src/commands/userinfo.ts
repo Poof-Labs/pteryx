@@ -12,7 +12,7 @@ import { logger } from "../lib/logger";
 
 export const data = new SlashCommandBuilder()
   .setName("userinfo")
-  .setDescription("(Admin) Lookup a Pterodactyl userby email")
+  .setDescription("(Admin) Lookup a Pterodactyl user by email")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addStringOption((o) => 
     o
@@ -31,8 +31,15 @@ export async function execute(
   const email = interaction.options.getString("email", true);
 
   try {
-    const user = await ptero.getUserByEmail(email);
-    logger.debug(`Fetched user for email ${email}:`, user);
+    const user = await ptero.getServersByUserEmail(email);
+    logger.debug("Fetched user lookup result", user
+      ? {
+          found: true,
+          id: user.attributes.id,
+          username: user.attributes.username,
+          serversCount: user.attributes.relationships?.servers?.data?.length ?? 0,
+        }
+      : { found: false });
 
     if (!user) {
       await interaction.editReply({

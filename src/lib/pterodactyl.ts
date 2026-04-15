@@ -69,10 +69,11 @@ export interface PterodactylUser {
     created_at: string;
     updated_at: string;
     relationships?: {
-    servers?: {
-      object: "list";
-      data: Server[];
-    }};
+      servers?: {
+        object: "list";
+        data: Server[];
+      };
+    };
   };
 }
 
@@ -176,14 +177,15 @@ export class PterodactylClient {
   }
 
   async getUserByEmail(email: string): Promise<PterodactylUser | null> {
-    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}&include=servers`);
+    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}`);
     const data = res.data?.data ?? [];
     return data.length > 0 ? data[0] : null;
   }
 
-  async getServersByUserId(userId: number): Promise<Server[]> {
-    const all = await this.getAllServers();
-    return all.filter((s) => s.attributes.owner_id === userId);
+  async getServersByUserEmail(email: string): Promise<PterodactylUser | null> {
+    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}&include=servers`);
+    const data = res.data?.data ?? [];
+    return data.length > 0 ? data[0] : null;
   }
 
 }
