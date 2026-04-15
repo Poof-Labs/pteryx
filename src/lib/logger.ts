@@ -7,6 +7,7 @@ export const logger = {
     console.log(`${timestamp()} ${chalk.blue("INFO")} ${message}`, ...args);
   },
   debug: (message: string, ...args: any[]) => {
+    if (process.env.DEBUG !== "true") return;
     console.log(`${timestamp()} ${chalk.magenta("DEBUG")} ${message}`, ...args);
   },
   warn: (message: string, ...args: any[]) => {

@@ -5,9 +5,11 @@ import * as power from "./commands/power";
 import * as status from "./commands/status";
 import * as console_ from "./commands/console";
 import * as suspend from "./commands/suspend";
+import * as userinfo from "./commands/userinfo";
+import * as info from "./commands/info";
 import { logger } from "./lib/logger";
 
-const commands = [power, status, console_, suspend].map((c) =>
+const commands = [power, status, console_, suspend, userinfo, info].map((c) =>
   c.data.toJSON()
 );
 

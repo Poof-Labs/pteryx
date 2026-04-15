@@ -27,6 +27,7 @@ export interface Server {
     status: string | null;
     suspended: boolean;
     allocation: number;
+    owner_id: number;
   };
 }
 
@@ -49,6 +50,24 @@ export interface Node {
       memory: number;
       disk: number;
     };
+  };
+}
+
+export interface PterodactylUser {
+  object: "user";
+  attributes: {
+    id: number;
+    external_id: string | null;
+    uuid: string;
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    language: string;
+    root_admin: boolean;
+    "2fa": boolean;
+    created_at: string;
+    updated_at: string;
   };
 }
 
@@ -149,6 +168,17 @@ export class PterodactylClient {
 
   async unsuspendServer(serverId: number): Promise<void> {
     await this.app.post(`/servers/${serverId}/unsuspend`);
+  }
+
+  async getUserByEmail(email: string): Promise<PterodactylUser | null> {
+    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}`);
+    const data = res.data?.data ?? [];
+    return data.length > 0 ? data[0] : null;
+  }
+
+  async getServersByUserId(userId: number): Promise<Server[]> {
+    const all = await this.getAllServers();
+    return all.filter((s) => s.attributes.owner_id === userId);
   }
 
 }

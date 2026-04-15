@@ -15,6 +15,8 @@ import * as status from "./commands/status";
 import * as power from "./commands/power";
 import * as console_ from "./commands/console";
 import * as suspend from "./commands/suspend";
+import * as userinfo from "./commands/userinfo";
+import * as info from "./commands/info";
 import { startNodeStatusLoop } from "./lib/nodeStatus";
 
 // - ENV VALIDATION -
@@ -50,8 +52,9 @@ type Command = {
 }
 
 const commands = new Collection<string, Command>();
-for (const cmd of [power, status, console_, suspend]) {
+for (const cmd of [power, status, console_, suspend, userinfo, info]) {
   commands.set(cmd.data.name, cmd as Command);
+  logger.startup(`Registered command: /${cmd.data.name}`);
 }
 // - EVENT HANDLERS -
 discord.once("clientReady", async (c) => {
@@ -59,9 +62,8 @@ discord.once("clientReady", async (c) => {
 
   const updatePresence = async () => {
     const servers = await ptero.getAllServers();
-    logger.bot(`Fetched ${servers.length} servers from Pterodactyl API.`);
+    // logger.bot(`Fetched ${servers.length} servers from Pterodactyl API.`);
 
-    logger.bot("Setting presence...");
     c.user.setPresence({
       activities: [{
         name: `Watching ${servers.length} servers`,
@@ -100,7 +102,7 @@ discord.on("interactionCreate", async (interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   logger.bot(`[Command] Received: /${interaction.commandName}`);
-
+  
   const command = commands.get(interaction.commandName);
   if (!command) {
     logger.warn(`No command found for ${interaction.commandName}`);

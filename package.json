@@ -8,7 +8,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "deploy-commands": "ts-node src/deploy-commands.ts",
-    "devdeploy": "npm run deploy-commands && npm run dev"
+    "dev:d": "npm run deploy-commands && npm run dev"
   },
   "repository": {
     "type": "git",
