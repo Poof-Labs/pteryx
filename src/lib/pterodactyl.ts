@@ -68,6 +68,11 @@ export interface PterodactylUser {
     "2fa": boolean;
     created_at: string;
     updated_at: string;
+    relationships?: {
+    servers?: {
+      object: "list";
+      data: Server[];
+    }};
   };
 }
 
@@ -171,7 +176,7 @@ export class PterodactylClient {
   }
 
   async getUserByEmail(email: string): Promise<PterodactylUser | null> {
-    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}`);
+    const res = await this.app.get(`/users?filter[email]=${encodeURIComponent(email)}&include=servers`);
     const data = res.data?.data ?? [];
     return data.length > 0 ? data[0] : null;
   }

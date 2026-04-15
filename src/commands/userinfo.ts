@@ -31,10 +31,8 @@ export async function execute(
   const email = interaction.options.getString("email", true);
 
   try {
-    const [user, allServers] = await Promise.all([
-      ptero.getUserByEmail(email),
-      ptero.getAllServers(),
-    ]);
+    const user = await ptero.getUserByEmail(email);
+    logger.debug(`Fetched user for email ${email}:`, user);
 
     if (!user) {
       await interaction.editReply({
@@ -49,7 +47,7 @@ export async function execute(
     }
 
     const a = user.attributes;
-    const servers = allServers.filter((s) => s.attributes.owner_id === a.id);
+    const servers = user.attributes.relationships?.servers?.data || [];
     const created = new Date(a.created_at);
 
     const embed = new EmbedBuilder()
