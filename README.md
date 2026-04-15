@@ -79,6 +79,10 @@ On first run the bot posts a new message in `NODE_STATUS_CHANNEL_ID` and logs it
 
 PRs are welcome. Open an issue first for anything significant so we can discuss it before you build it.
 
+## AI Generated Content Disclosure
+
+GitHub Copilot has co-authored **one** commit in this project and it will be the **only** commit it co-authors. AI will no longer be involved in the project.
+
 ## License
 
 [MIT](LICENSE)
